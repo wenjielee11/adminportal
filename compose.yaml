@@ -1,0 +1,33 @@
+services:
+  server:
+    build:
+      context: ./backend #  path to the directory containing Dockerfile
+      dockerfile: Dockerfile 
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/adminportal?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 12345678
+
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_USER=root'
+      - 'MYSQL_DATABASE=adminportal'
+      - 'MYSQL_PASSWORD=12345678'
+      - 'MYSQL_ROOT_PASSWORD=12345678'
+    ports:
+      - '3307:3306' # Exposes MySQL on port 3307 on host, connects to 3306 in the container
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    
