@@ -1,109 +1,107 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'react-bootstrap';
-import apiService from '../apiService'; // Adjust the path as necessary
+import apiService from '../apiService';
 import Navigation from './navBar';
+import SockJS from 'sockjs-client';
+import Stomp from 'webstomp-client';
 
+/**
+ * UserPortal component displays a list of users and updates in real-time using WebSockets.
+ */
 const UserPortal = () => {
-    const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
 
-    useEffect(() => {
-        // Fetch active users when the component mounts
-        apiService.getActiveUsers()
-            .then(response => {
-                // Assume response contains the array of active users
-                setUsers(response.data); // Adjust depending on the actual structure of your response
-            })
-            .catch(error => {
-                console.error("Failed to fetch users:", error);
-            });
-    }, []); // Empty dependency array to run only once on mount
+  // Fetches initial list of users when the component mounts.
+  useEffect(() => {
+    apiService.getActiveUsers()
+      .then(response => setUsers(response.data))
+      .catch(error => console.error("Failed to fetch users:", error));
+  }, []);
 
-    const [webSocket, setWebSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [stompClient, setStompClient] = useState(null);
 
-    useEffect(() => {
-        // Connect to WebSocket
-        const ws = new WebSocket('ws://localhost:8080/ws-endpoint'); // Replace with your actual WebSocket endpoint
-        setWebSocket(ws);
+  // Establishes WebSocket connection and sets up subscription to user updates.
+  useEffect(() => {
+    if (!stompClient) {
+      const socket = new SockJS('http://localhost:8080/get-users');
+      const client = Stomp.over(socket);
 
-        ws.onopen = () => {
-            console.log('WebSocket connection established');
-        };
+      client.connect({}, frame => {
+        setIsConnected(true);
+        client.subscribe('/topic/userUpdate', message => {
+          setUsers(JSON.parse(message.body));
+        });
+      }, error => setIsConnected(false));
 
-        ws.onmessage = (message) => {
-            // Assuming the message contains the updated list of users
-            const data = JSON.parse(message.data);
-            setUsers(data); // Update the state with the new users
-        };
+      setStompClient(client);
+    }
 
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
+    // Disconnects on cleanup.
+    return () => {
+      if (stompClient && isConnected) {
+        stompClient.disconnect();
+        setIsConnected(false);
+      }
+    };
+  }, [stompClient]);
 
-        // Clean up on unmount
-        return () => {
-            ws.close();
-        };
-    }, []);
-    
-    return (
-        <>
-        <Navigation/>
-        <Table striped bordered hover style={{margin:'30px'}}>
-            <thead>
-                <tr>    
-                    <th>id</th>
-                    <th>Timestamp (Last updated)</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Shape/Color</th>
-                </tr>
-            </thead>
-            <tbody>
-                {users.map((user, index) => (
-                    <tr key={index}>
-                        <td>{user.id}</td>
-                        <td>{user.updatedAt}</td>
-                        <td>{user.firstName}</td>
-                        <td>{user.lastName}</td>
-                        <td>
-                            <ShapeColor shape={user.shape} color={user.color} />
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
-        </>
-    );
+  // Formats timestamp for display.
+  const getDate = (timestamp) => new Date(timestamp).toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
+  return (
+    <>
+      <Navigation />
+      <Table striped bordered hover style={{ margin: '30px' }}>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>Timestamp (Last updated)</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Shape/Color</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user, index) => (
+            <tr key={index}>
+              <td>{user.id}</td>
+              <td>{getDate(user.updatedAt)}</td>
+              <td>{user.firstName}</td>
+              <td>{user.lastName}</td>
+              <td><ShapeColor shape={user.shape} color={user.color} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </>
+  );
 };
 
+/**
+ * Renders a shape with a specific color.
+ * @param {Object} props shape and color properties
+ */
 const ShapeColor = ({ shape, color }) => {
-    const svgStyles = {
-      fill: color,
-      stroke: color
-    };
-  
-    switch (shape) {
-      case 'Circle':
-        return (
-          <svg width="50" height="50" viewBox="0 0 50 50">
-            <circle cx="25" cy="25" r="20" style={svgStyles} />
-          </svg>
-        );
-      case 'Triangle':
-        return (
-          <svg width="50" height="50" viewBox="0 0 50 50">
-            <polygon points="25,5 45,45 5,45" style={svgStyles} />
-          </svg>
-        );
-      case 'Square':
-        return (
-          <svg width="50" height="50" viewBox="0 0 50 50">
-            <rect width="40" height="40" x="5" y="5" style={svgStyles} />
-          </svg>
-        );
-      default:
-        return null; // or a default shape if you have one
-    }
-  };
+  const svgStyles = { fill: color, stroke: color };
+
+  switch (shape) {
+    case 'Circle':
+      return <svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" style={svgStyles} /></svg>;
+    case 'Triangle':
+      return <svg width="50" height="50" viewBox="0 0 50 50"><polygon points="25,5 45,45 5,45" style={svgStyles} /></svg>;
+    case 'Square':
+      return <svg width="50" height="50" viewBox="0 0 50 50"><rect width="40" height="40" x="5" y="5" style={svgStyles} /></svg>;
+    default:
+      return null; // Handle unexpected shapes gracefully
+  }
+};
 
 export default UserPortal;

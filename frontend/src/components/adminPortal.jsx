@@ -7,40 +7,45 @@ import apiService from "../apiService";
 import 'bootstrap/dist/css/bootstrap.css';
 import Navigation from "./navBar";
 
-
+/**
+ * Component for administering user operations such as add, delete, and update.
+ */
 const AdminPortal = () => {
 
-    const {
-        register,
-        formState: { errors },
-        handleSubmit,
-        setError,
+    const { register, formState: { errors }, handleSubmit, setError } = useForm();
 
-    } = useForm();
-
+    /**
+     * Handles adding a user.
+     * @param user User data from form.
+     */
     const handleAddUser = (user) => {
         apiService.addUser(user).then(response => {
             console.log(response);
             alert(response.message)
-
         }).catch(error => {
             console.log(error)
             alert(error)
         })
     }
 
+    /**
+     * Handles deleting a user.
+     * @param user User data from form.
+     */
     const handleDeleteUser = (user) => {
-
-
         apiService.deleteUser(user).then(response => {
             console.log(response);
             alert(response.message)
-
         }).catch(error => {
             console.log(error)
             alert(error)
         })
     }
+
+    /**
+     * Handles updating a user.
+     * @param user User data from form.
+     */
     const handleEditUser = (user) => {
         apiService.editUser(user).then(response => {
             console.log(response);
@@ -50,23 +55,24 @@ const AdminPortal = () => {
             alert(error)
         })
     }
-    const handleFormSubmit = (data, action) => {
 
+    /**
+     * Submits the form based on the action type (add, delete, update).
+     * @param data Form data.
+     * @param action Type of action to perform.
+     */
+    const handleFormSubmit = (data, action) => {
         if (action === 'add') {
             handleAddUser(data);
         } else if (action === 'delete') {
             if (!data.id) {
-                setError('id', {
-                    type: 'manual',
-                    message: 'id is required for deletion.'
-                })
+                setError('id', { type: 'manual', message: 'ID is required for deletion.' });
                 return;
             }
             handleDeleteUser(data);
         } else if (action === 'update') {
             handleEditUser(data);
         }
-
     };
 
     return (

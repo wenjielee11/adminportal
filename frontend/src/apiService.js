@@ -1,62 +1,61 @@
 const API_BASE_URL = 'http://localhost:8080/admin'; 
 
 const apiService = {
+  // Adds a user with provided data.
   addUser: async (userData) => {
     const response = await fetch(`${API_BASE_URL}/add`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": 'http://localhost:3000',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
-    const data = await response.json();
     if (!response.ok) {
-      throw new Error(`Error adding user ${userData.lastName} ${userData.firstName}:\n${response.body}`);
+      const errorData = await response.json(); 
+      throw new Error(`Error adding user ${userData.lastName} ${userData.firstName}: ${errorData.message}`);
     }
+    const data = await response.json(); 
     return { message: 'User successfully added', data };
   },
 
+  // Edits a user with provided data.
   editUser: async (userData) => {
-   
     const response = await fetch(`${API_BASE_URL}/edit`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": 'http://localhost:3000',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
-    if (response.status !==418) {
-      throw new Error(`Error editing user ${userData.lastName} ${userData.firstName} ${response.body}`);
+    if (response.status!== 418) { // Teapot
+      const errorData = await response.json(); 
+      throw new Error(`Error editing user ${userData.lastName} ${userData.firstName}: ${errorData.message}`);
     }
-    const data = await response.json();
+    const data = await response.json(); 
     return { message: 'User successfully edited', data };
   },
 
+  // Deletes a user with provided data.
   deleteUser: async (userData) => {
     const response = await fetch(`${API_BASE_URL}/delete`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": 'http://localhost:3000',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
     if (!response.ok) {
-      throw new Error(`User ${userData.lastName} ${userData.firstName} cannot be deleted.`);
+      const errorData = await response.json();
+      throw new Error(`Error deleting user ${userData.lastName} ${userData.firstName}: ${errorData.message}`);
     }
-    return { message: `User ${userData.lastName} ${userData.firstName} successfully deleted` };
+    const data = await response.json(); 
+    return { message: `User ${userData.lastName} ${userData.firstName} successfully deleted`, data };
   },
 
+  // Fetches a list of active users.
   getActiveUsers: async () => {
     const response = await fetch(`${API_BASE_URL}`, {
       method: 'GET',
     });
     if (!response.ok) {
-      throw new Error('Error fetching active users');
+      const errorData = await response.json(); 
+      throw new Error(`Error getting users: ${errorData.message}`);
     }
-    const data = await response.json();
+    const data = await response.json(); 
     return { message: 'Active users fetched', data };
   },
 };
