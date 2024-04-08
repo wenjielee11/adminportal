@@ -15,14 +15,17 @@
   ```
 - ```cd fetchBEinterview```
 - Make sure you have docker installed first!
-- Paste the following code in order:
+- Paste the following into the terminal in order:
 ```
 docker compose build
 ```
 ```
 docker compose up
 ```
+- Go to ```http://localhost:3000```
 - And that's it! You may use Postman or cURL to test the service routes.
+- ```Note:``` If you get a "communications link failure" when starting up spring its because mysql hasnt started up yet. Try rerunning docker compose up again when that happens.
+- To stop, do Ctrl+c. Or manage containers via the docker desktop interface
 
 ### REST Web Service Routes
 
