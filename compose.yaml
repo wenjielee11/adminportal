@@ -1,12 +1,13 @@
 services:
   server:
     build:
-      context: ./backend #  path to the directory containing Dockerfile
+      context: ./backend
       dockerfile: Dockerfile 
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy  # Server will start only when MySQL is healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/adminportal?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
@@ -15,11 +16,17 @@ services:
   mysql:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_DATABASE=adminportal'
-      - 'MYSQL_PASSWORD=12345678'
-      - 'MYSQL_ROOT_PASSWORD=12345678'
+      - MYSQL_DATABASE=adminportal
+      - MYSQL_PASSWORD=12345678
+      - MYSQL_ROOT_PASSWORD=12345678
     ports:
-      - '3307:3306' # Exposes MySQL on port 3307 on host, connects to 3306 in the container
+      - '3307:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]  # Command to check health
+      interval: 10s  # Time between running the command
+      timeout: 5s    # Time before considering the check to have hung
+      retries: 5     # Number of retries in case of failure
+      start_period: 30s  # Initial startup time to ignore health check failures
 
   frontend:
     build: 
@@ -29,4 +36,3 @@ services:
       - "3000:3000"
     depends_on:
       - server
-    
