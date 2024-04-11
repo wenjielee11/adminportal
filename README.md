@@ -13,7 +13,7 @@
   ```
   git clone https://github.com/wenjielee11/adminportal
   ```
-- ```cd fetchBEinterview```
+- ```cd adminportal```
 - Make sure you have docker installed first!
 - Paste the following into the terminal in order:
 ```
