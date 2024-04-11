@@ -15,9 +15,7 @@ services:
   mysql:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_USER=root'
       - 'MYSQL_DATABASE=adminportal'
-      - 'MYSQL_PASSWORD=12345678'
       - 'MYSQL_ROOT_PASSWORD=12345678'
     ports:
       - '3307:3306' # Exposes MySQL on port 3307 on host, connects to 3306 in the container
