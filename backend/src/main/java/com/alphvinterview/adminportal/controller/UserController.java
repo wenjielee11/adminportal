@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/admin")
-@CrossOrigin(origins = "http://localhost:3000") // Allows cross-origin requests from the specified domain.
+@CrossOrigin(origins = "http://ec2-54-251-0-255.ap-southeast-1.compute.amazonaws.com") // Allows cross-origin requests from the specified domain.
 public class UserController {
 
     @Autowired

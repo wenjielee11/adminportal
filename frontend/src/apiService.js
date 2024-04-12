@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/admin'; 
+const API_BASE_URL = 'ec2-54-251-0-255.ap-southeast-1.compute.amazonaws.com:8080/admin'; 
 
 const apiService = {
   // Adds a user with provided data.
