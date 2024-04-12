@@ -24,7 +24,8 @@ const UserPortal = () => {
   // Establishes WebSocket connection and sets up subscription to user updates.
   useEffect(() => {
     if (!stompClient) {
-      const socket = new SockJS('ec2-54-251-0-255.ap-southeast-1.compute.amazonaws.com:8080/get-users');
+  
+      const socket = new SockJS('http://ec2-54-251-129-250.ap-southeast-1.compute.amazonaws.com:8000/get-users');
       const client = Stomp.over(socket);
 
       client.connect({}, frame => {

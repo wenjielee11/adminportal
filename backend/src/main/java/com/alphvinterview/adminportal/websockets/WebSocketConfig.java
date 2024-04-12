@@ -31,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
    */
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    // Registers the "/get-users" endpoint, enabling SockJS protocol fallback options, allowing for alternative messaging options if WebSocket is not available.
-    registry.addEndpoint("/get-users").setAllowedOrigins("https://ec2-54-251-0-255.ap-southeast-1.compute.amazonaws.com").withSockJS();
+    // Registers the "/get-users" endpoint, enabling SockJS protocol fallback options, allowing for alternative messaging options if WebSocket is not available. a
+    registry.addEndpoint("/get-users").setAllowedOrigins("http://ec2-54-251-129-250.ap-southeast-1.compute.amazonaws.com").withSockJS();
   }
 }

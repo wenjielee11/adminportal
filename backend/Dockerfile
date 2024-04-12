@@ -10,5 +10,5 @@ RUN mvn clean package
 # Final stage with JDK 21
 FROM openjdk:21-jdk-slim
 COPY --from=build /src/target/*.jar app.jar
-EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT ["java", "-jar", "/app.jar"]

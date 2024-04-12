@@ -32,20 +32,20 @@ docker compose up
 
 Request to add:
 ```
-curl -H "Content-Type: application/json" -d '{"id":null, "firstname": "John", "lastName":"Doe", "color":"Red","shape":"Circle"}' http://localhost:8080/admin/add
+curl -H "Content-Type: application/json" -d '{"id":null, "firstname": "John", "lastName":"Doe", "color":"Red","shape":"Circle"}' http://localhost:8000/admin/add
 ```
 
 EndPoints : 
 ```
-http://localhost:8080/admin/add
+http://localhost:8000/admin/add
 ```
 ```
-http://localhost:8080/admin/edit
+http://localhost:8000/admin/edit
 ```
 ```
-http://localhost:8080/admin/delete
+http://localhost:8000/admin/delete
 ```
 To get all active users:
 ```
-http://localhost:8080/admin/
+http://localhost:8000/admin/
 ```

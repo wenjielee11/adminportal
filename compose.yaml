@@ -1,10 +1,11 @@
 services:
   server:
+    image: wenjielee11/server
     build:
       context: ./backend
       dockerfile: Dockerfile 
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
       mysql:
         condition: service_healthy  # Server will start only when MySQL is healthy
@@ -19,20 +20,31 @@ services:
       - MYSQL_DATABASE=adminportal
       - MYSQL_PASSWORD=12345678
       - MYSQL_ROOT_PASSWORD=12345678
+    command: --default-authentication-plugin=mysql_native_password
     ports:
-      - '3307:3306'
+      - '3306:3306'
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]  # Command to check health
-      interval: 10s  # Time between running the command
-      timeout: 5s    # Time before considering the check to have hung
-      retries: 5     # Number of retries in case of failure
-      start_period: 30s  # Initial startup time to ignore health check failures
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    entrypoint:
+      - sh
+      - -c
+      - |
+        #!/bin/bash
+        docker-entrypoint.sh mysqld &
+        sleep 30
+        mysql -u root -p$$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+        wait
 
   frontend:
+    image: wenjielee11/frontend
     build: 
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "80:3000"
     depends_on:
       - server
